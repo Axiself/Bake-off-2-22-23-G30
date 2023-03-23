@@ -11,18 +11,19 @@ const RECORD_TO_FIREBASE  = false;  // Set to 'true' to record user results to F
 
 // Pixel density and setup variables (DO NOT CHANGE!)
 let PPI, PPCM;
-const NUM_OF_TRIALS       = 12;      // The numbers of trials (i.e., target selections) to be completed
+const NUM_OF_TRIALS       = 12;     // The numbers of trials (i.e., target selections) to be completed
 const GRID_ROWS           = 8;      // We divide our 80 targets in a 8x10 grid
 const GRID_COLUMNS        = 10;     // We divide our 80 targets in a 8x10 grid
+const SUBTITLE_AMOUNT     = 80;
 let continue_button;
+let finalLegendas;                  // Temporary item list from the "legendas" CSV
 let legendas;                       // The item list from the "legendas" CSV
 
 // Metrics
 let testStartTime, testEndTime;     // time between the start and end of one attempt (8 trials)
-let hits 			      = 0;      // number of successful selections
-let misses 			      = 0;      // number of missed selections (used to calculate accuracy)
+let hits 			            = 0;      // number of successful selections
+let misses 			          = 0;      // number of missed selections (used to calculate accuracy)
 let database;                       // Firebase DB  
-let correctTargets = [];            // List of the correct targets selected by the user.
 
 // Study control parameters
 let draw_targets          = false;  // used to control what to show in draw()
@@ -32,12 +33,21 @@ let attempt               = 0;      // users complete each test twice to account
 
 // Target list
 let targets               = [];
+let correctTargets        = [];     // List of the correct targets selected by the user.
+let targetsOrdered        = [];
+
+// Group lists
+let fruit                 = [];
+let juice                 = [];
+let dairies               = [];
+let vegetables            = [];
 
 // Ensures important data is loaded before the program starts
 function preload()
 {
   legendas = loadTable('legendas.csv', 'csv', 'header');
 }
+
 
 // Runs once at the start
 function setup()
@@ -64,13 +74,13 @@ function draw()
     text("Trial " + (current_trial + 1) + " of " + trials.length, 50, 20);
         
 	// Draw all targets
-	for (var i = 0; i < legendas.getRowCount(); i++) {
-        if (correctTargets.includes(targets[i].id)) {
-          targets[i].drawG();
-        } else{
-          targets[i].draw();
-        }
-      }
+	for (var i = 0; i < SUBTITLE_AMOUNT; i++) {
+    if (correctTargets.includes(targets[i].id)) {
+      targets[i].drawG();
+    } else{
+      targets[i].draw();
+    }
+  }
     
     // Draw the target label to be selected in the current trial
     textFont("Arial", 20);
@@ -143,7 +153,7 @@ function mousePressed()
   // (i.e., during target selections)
   if (draw_targets)
   {
-    for (var i = 0; i < legendas.getRowCount(); i++)
+    for (var i = 0; i < SUBTITLE_AMOUNT; i++)
     {
       // Check if the user clicked over one of the targets
       if (targets[i].clicked(mouseX, mouseY)) 
@@ -207,19 +217,59 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
   h_margin = horizontal_gap / (GRID_COLUMNS -1);
   v_margin = vertical_gap / (GRID_ROWS - 1);
   
+  let tlabel;
+  let tid;
+  let ttype;
+  
+  for (var i = 0; i < SUBTITLE_AMOUNT; i++){
+    tlabel = legendas.getString(i, 0);
+    tid = legendas.getNum(i, 1);
+    ttype = legendas.getString(i, 2);
+    subtitle = new Subtitle(tlabel, tid, ttype);
+
+    if(i<=27){ 
+      fruit.push(subtitle);
+    } else if (i>=28 && i<=36){
+      juice.push(subtitle);
+    } else if (i>=37 && i<=57){
+      dairies.push(subtitle);
+    } else {
+      vegetables.push(subtitle);
+    }
+  }
+
+  fruit.sort((a,b)=>{
+    if(a.label< b.label) return -1;
+    return 1;
+  })
+  juice.sort((a,b)=>{
+    if(a.label< b.label) return -1;
+    return 1;
+  })
+  dairies.sort((a,b)=>{
+    if(a.label< b.label) return -1;
+    return 1;
+  })
+  vegetables.sort((a,b)=>{
+    if(a.label< b.label) return -1;
+    return 1;
+  })
+  
+  finalLegendas = fruit.concat(juice, dairies, vegetables);
+  
   // Set targets in a 8 x 10 grid
-  for (var r = 0; r < GRID_ROWS; r++)
+  for (var r = 0; r < GRID_COLUMNS; r++)
   {
-    for (var c = 0; c < GRID_COLUMNS; c++)
+    for (var c = 0; c < GRID_ROWS; c++)
     {
-      let target_x = 40 + (h_margin + target_size) * c + target_size/2;        // give it some margin from the left border
-      let target_y = (v_margin + target_size) * r + target_size/2;
+      let target_x = 40 + (h_margin + target_size) * r + target_size/2;        // give it some margin from the left border
+      let target_y = (v_margin + target_size) * c + target_size/2;
       
       // Find the appropriate label and ID for this target
-      let legendas_index = c + GRID_COLUMNS * r;
-      let target_label = legendas.getString(legendas_index, 0);
-      let target_id = legendas.getNum(legendas_index, 1);     
-      let target_type =legendas.getString(legendas_index,2);
+      let legendas_index = c + GRID_ROWS * r;
+      let target_label = finalLegendas[legendas_index].label;
+      let target_id = finalLegendas[legendas_index].id;     
+      
       let target = new Target(target_x, target_y + 40, target_size, target_label, target_id);
       targets.push(target);
     }  
