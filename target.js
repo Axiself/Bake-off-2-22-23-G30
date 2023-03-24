@@ -1,14 +1,42 @@
+function targetColor(i) 
+{
+  if(i<=27){                    // Fruits
+    return color(250,29,47);  
+  } else if (i>=28 && i<=36){   // Juices
+    return color(248,117,49);  
+  } else if (i>=37 && i<=57){   // Dairies
+    return color(238,233,233);  
+  } else {                      // Vegetables
+    return color(156,203,25);  
+  }
+}
+
+function textColor(i)
+{
+  if(i<=27){                    // Fruits
+    return color(255,255,255);  
+  } else if (i>=28 && i<=36){   // Juices
+    return color(255,255,255);  
+  } else if (i>=37 && i<=57){   // Dairies
+    return color(0,0,0);  
+  } else {                      // Vegetables
+    return color(255,255,255);  
+  }
+}
+
 // Target class (position and width)
 class Target
 {
   constructor(x, y, w, l, id, type)
   {
-    this.x      = x;
-    this.y      = y;
-    this.width  = w;
-    this.label  = l;
-    this.id     = id;
-    this.type   = type;
+    this.x        = x;
+    this.y        = y;
+    this.width    = w;
+    this.label    = l;
+    this.id       = id;
+    this.type     = type;
+    this.color    = targetColor(id);
+    this.text     = textColor(id);
   }
   
   // Checks if a mouse click took place
@@ -23,44 +51,21 @@ class Target
   draw()
   {
     // Draw target
-    if(this.id<=27){                          // Fruits
-      fill(color(250,29,47));  
-    } else if (this.id>=28 && this.id<=36){   // Juices
-      fill(color(248,117,49));  
-    } else if (this.id>=37 && this.id<=57){   // Dairies
-      fill(color(238,233,233));  
-    } else {                                  // Vegetables
-      fill(color(156,203,25));  
-    }
-                     
-    circle(this.x, this.y, this.width);
+    fill(this.color);   
+    rect(this.x-(this.width/2), this.y-(this.width/2), this.width);
     
     // Draw label
-    if(this.id>=37 && this.id<=57) {
-      textFont("Arial", 12);
-      fill(color(0,0,0));
-      textAlign(CENTER, CENTER);
-      text(this.label, this.x, this.y);
-       }
-    else {
-      textFont("Arial", 12);
-      fill(color(255,255,255));
-      textAlign(CENTER, CENTER);
-      text(this.label, this.x, this.y);
-    }
-    
-  }
-
-  drawG() 
-  {
-    // Draw target
-    fill(color(191, 191, 191));                 
-    circle(this.x, this.y, this.width);
-    
-    // Draw label
-    textFont("Arial", 12);
-    fill(color(255,255,255));
+    textFont("Arial", 15);
+    fill(this.text);
     textAlign(CENTER, CENTER);
     text(this.label, this.x, this.y);
+      
+    // Draw first letter on top
+    textFont("Arial", 20);
+    textAlign(CENTER, TOP);
+    text(this.label[0], this.x, this.y-(this.width/2)+5);
+    fill(this.text);
+    textStyle(NORMAL);
+    textAlign(CENTER);
   }
 }

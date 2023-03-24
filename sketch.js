@@ -33,7 +33,6 @@ let attempt               = 0;      // users complete each test twice to account
 
 // Target list
 let targets               = [];
-let correctTargets        = [];     // List of the correct targets selected by the user.
 let targetsOrdered        = [];
 
 // Group lists
@@ -75,12 +74,8 @@ function draw()
         
 	// Draw all targets
 	for (var i = 0; i < SUBTITLE_AMOUNT; i++) {
-    if (correctTargets.includes(targets[i].id)) {
-      targets[i].drawG();
-    } else{
       targets[i].draw();
     }
-  }
     
     // Draw the target label to be selected in the current trial
     textFont("Arial", 20);
@@ -158,10 +153,11 @@ function mousePressed()
       // Check if the user clicked over one of the targets
       if (targets[i].clicked(mouseX, mouseY)) 
       {
+        targets[i].color = color(191, 191, 191);
+        targets[i].text = color(0,0,0);
         // Checks if it was the correct target
         if (targets[i].id === trials[current_trial]) {
             hits++;
-            correctTargets.push(targets[i].id); // add the target's ID to the list
           } else {
             misses++;
           }
@@ -220,7 +216,6 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
   let tlabel;
   let tid;
   let ttype;
-  
   for (var i = 0; i < SUBTITLE_AMOUNT; i++){
     tlabel = legendas.getString(i, 0);
     tid = legendas.getNum(i, 1);
@@ -258,16 +253,16 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
   finalLegendas = fruit.concat(juice, dairies, vegetables);
   
   // Set targets in a 8 x 10 grid
-  for (var r = 0; r < GRID_COLUMNS; r++)
+  for (var r = 0; r < GRID_ROWS; r++)
   {
-    for (var c = 0; c < GRID_ROWS; c++)
+    for (var c = 0; c < GRID_COLUMNS; c++)
     {
-      let target_x = 40 + (h_margin + target_size) * r + target_size/2;        // give it some margin from the left border
-      let target_y = (v_margin + target_size) * c + target_size/2;
+      let target_x = 40 + (h_margin + target_size) * c + target_size/2;        // give it some margin from the left border
+      let target_y = (v_margin + target_size) * r + target_size/2;
       
       // Find the appropriate label and ID for this target
-      let legendas_index = c + GRID_ROWS * r;
-      let target_label = finalLegendas[legendas_index].label;
+      let legendas_index = c + GRID_COLUMNS * r;
+      let target_label = finalLegendas[legendas_index].label.replaceAll(" ", "\n");
       let target_id = finalLegendas[legendas_index].id;     
       
       let target = new Target(target_x, target_y + 40, target_size, target_label, target_id);
