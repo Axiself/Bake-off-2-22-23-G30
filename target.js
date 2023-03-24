@@ -31,7 +31,8 @@ class Target
   {
     this.x        = x;
     this.y        = y;
-    this.width    = w;
+    this.width    = (w * 14) / 10;
+    this.height   = (w * 13) / 20;
     this.label    = l;
     this.id       = id;
     this.type     = type;
@@ -43,7 +44,12 @@ class Target
   // within the target
   clicked(mouse_x, mouse_y)
   {
-    return dist(this.x, this.y, mouse_x, mouse_y) < this.width / 2;
+    let left = this.x-(this.width/2);
+    let right = this.x+(this.width/2);
+    let top = this.y-(this.height/2);
+    let bottom = this.y+(this.height/2);
+    
+    return mouse_x>=left && mouse_x<=right && mouse_y<=bottom && mouse_y>=top;
   }
   
   // Draws the target (i.e., a circle)
@@ -52,18 +58,19 @@ class Target
   {
     // Draw target
     fill(this.color);   
-    rect(this.x-(this.width/2), this.y-(this.width/2), this.width);
+    rect(this.x - this.width/2, this.y - this.height/2,
+         this.width, this.height,10);
     
     // Draw label
     textFont("Arial", 15);
     fill(this.text);
-    textAlign(CENTER, CENTER);
-    text(this.label, this.x, this.y);
+    textAlign(CENTER, BOTTOM);
+    text(this.label, this.x, this.y + (this.height/2)-7);
       
     // Draw first letter on top
     textFont("Arial", 20);
     textAlign(CENTER, TOP);
-    text(this.label[0], this.x, this.y-(this.width/2)+5);
+    text(this.label[0], this.x, this.y - (this.height/2)+7);
     fill(this.text);
     textStyle(NORMAL);
     textAlign(CENTER);
