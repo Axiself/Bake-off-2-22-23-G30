@@ -8,7 +8,7 @@ function drawUserIDScreen()
 { 
   background(color(0,0,0));                                          // sets background to black
   
-  // Text prompt
+  // Text prompts
   main_text = createDiv("Insert your student number and display size");
   main_text.id('main_text');
   main_text.position(10, 10);
@@ -90,7 +90,7 @@ function randomizeTrials()
   trials = [];      // Empties the array
     
   // Creates an array with random items from the "legendas" CSV
-  for (var i = 0; i < NUM_OF_TRIALS; i++) trials.push(round(random(legendas.getRowCount())));
+  for (var i = 0; i < NUM_OF_TRIALS; i++) trials.push(floor(random(legendas.getRowCount())));
 
   // print("trial order: " + trials);   // prints trial order - for debug purposes
 }

@@ -12,8 +12,8 @@ const RECORD_TO_FIREBASE  = true;  // Set to 'true' to record user results to Fi
 // Pixel density and setup variables (DO NOT CHANGE!)
 let PPI, PPCM;
 const NUM_OF_TRIALS       = 12;     // The numbers of trials (i.e., target selections) to be completed
-const GRID_ROWS           = 8;      // We divide our 80 targets in a 8x10 grid
-const GRID_COLUMNS        = 10;     // We divide our 80 targets in a 8x10 grid
+const GRID_ROWS           = 8;
+const GRID_COLUMNS        = 11;
 const SUBTITLE_AMOUNT     = 80;
 let continue_button;
 let finalLegendas;                  // Temporary item list from the "legendas" CSV
@@ -31,6 +31,10 @@ let trials;                         // contains the order of targets that activa
 let current_trial         = 0;      // the current trial number (indexes into trials array above)
 let attempt               = 0;      // users complete each test twice to account for practice (attemps 0 and 1)
 
+// Measurements
+let screen_width;
+let screen_height;
+
 // Target list
 let targets               = [];
 let targetsOrdered        = [];
@@ -40,6 +44,8 @@ let fruit                 = [];
 let juice                 = [];
 let dairies               = [];
 let vegetables            = [];
+let groupTitles           = [];
+
 
 // Ensures important data is loaded before the program starts
 function preload()
@@ -58,9 +64,39 @@ function setup()
   drawUserIDScreen();        // draws the user start-up screen (student ID and display size)
 }
 
+function drawCursor()
+{
+  fill(6,246,249);
+  noStroke();
+  noCursor();
+  rect(mouseX, mouseY+4, 4, 6);
+  rect(mouseX, mouseY-10, 4, 6);
+  rect(mouseX+6.25, mouseY-2, 6, 4);
+  rect(mouseX-8.25, mouseY-2, 6, 4);
+}
+
 // Runs every frame and redraws the screen
 function draw()
 {
+  cursor(ARROW);
+  
+  if (!draw_targets && attempt == 0) {
+    background(color(0,0,0));
+    
+    // Text help
+    fill(255);
+    textFont("Arial", 20);
+    text("The targets are ordered by\ngroups, then alfabetically!", 425, 50);
+    
+    textFont("Arial", 16);
+    text("Groups:  - Fruits\n               - Juices\n               - Dairy products\n               - Vegetables", 425, 100);
+    
+    textFont("Arial", 12);
+    text("PS: Tomato is a vegetable", 425, 195);
+    
+    drawCursor();
+  }
+  
   if (draw_targets && attempt < 2)
   {     
     // The user is interacting with the 6x3 target grid
@@ -72,15 +108,23 @@ function draw()
     textAlign(LEFT);
     text("Trial " + (current_trial + 1) + " of " + trials.length, 50, 20);
         
-	// Draw all targets
-	for (var i = 0; i < SUBTITLE_AMOUNT; i++) {
+	  // Draw all targets
+	  for (var i = 0; i < SUBTITLE_AMOUNT; i++) {
       targets[i].draw();
     }
+
+    for (var i = 0; i < 4; i++){
+      groupTitles[i].draw(screen_width * PPCM);
+    }
+    
     
     // Draw the target label to be selected in the current trial
     textFont("Arial", 20);
+    fill(color(255,255,255));
     textAlign(CENTER);
     text(legendas.getString(trials[current_trial],0), width/2, height - 20);
+    
+    drawCursor();
   }
 }
 
@@ -205,6 +249,34 @@ function continueTest()
   draw_targets = true; 
 }
 
+function getLineSize(len)
+{
+  if(len>=GRID_COLUMNS) return GRID_COLUMNS;
+  else return len
+}
+
+function createTargetBoxes(target_size, h_margin, v_margin, list, initCol)
+{
+  for (var r = 0; r < Math.ceil(list.length/GRID_COLUMNS); r++)
+  {
+    let cols = getLineSize(list.length - r*GRID_COLUMNS);
+    for (var c = 0; c < cols; c++)
+    {
+      let target_x = 40 + (h_margin + target_size) * c + target_size/2;               // give it some margin from the left border
+      if(cols < 11) target_x += (h_margin + target_size) * (GRID_COLUMNS - cols)/2;   // re-center lines that aren't full
+      let target_y = (v_margin + target_size) * (r+initCol) + target_size/2;
+      
+      // Find the appropriate label and ID for this target
+      let legendas_index = c + GRID_COLUMNS * r;
+      let target_label = list[legendas_index].label;
+      let target_id = list[legendas_index].id;
+      
+      let target = new Target(target_x, target_y + 40, target_size, target_label, target_id);
+      targets.push(target);
+    }
+  }
+}
+
 // Creates and positions the UI targets
 function createTargets(target_size, horizontal_gap, vertical_gap)
 {
@@ -213,6 +285,11 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
   h_margin = horizontal_gap / (GRID_COLUMNS -1);
   v_margin = vertical_gap / (GRID_ROWS - 1);
   
+  groupTitles.push(new Group("Fruits", color(250,29,47), 10 + target_size/2));
+  groupTitles.push(new Group("Juices", color(248,117,49), 10 + target_size/2 + (v_margin + target_size)*3));
+  groupTitles.push(new Group("Milks & Yoghurts & Creams", color(238,233,233), 10 + target_size/2 + (v_margin + target_size)*4));
+  groupTitles.push(new Group("Vegetables", color(156,203,25), 10 + target_size/2 + (v_margin + target_size)*6));
+
   let tlabel;
   let tid;
   let ttype;
@@ -252,23 +329,10 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
   
   finalLegendas = fruit.concat(juice, dairies, vegetables);
   
-  // Set targets in a 8 x 10 grid
-  for (var r = 0; r < GRID_ROWS; r++)
-  {
-    for (var c = 0; c < GRID_COLUMNS; c++)
-    {
-      let target_x = 40 + (h_margin + target_size) * c + target_size/2;        // give it some margin from the left border
-      let target_y = (v_margin + target_size) * r + target_size/2;
-      
-      // Find the appropriate label and ID for this target
-      let legendas_index = c + GRID_COLUMNS * r;
-      let target_label = finalLegendas[legendas_index].label;
-      let target_id = finalLegendas[legendas_index].id;
-      
-      let target = new Target(target_x, target_y + 40, target_size, target_label, target_id);
-      targets.push(target);
-    }  
-  }
+  createTargetBoxes(target_size, h_margin, v_margin, fruit, 0);
+  createTargetBoxes(target_size, h_margin, v_margin, juice, 3);
+  createTargetBoxes(target_size, h_margin, v_margin, dairies, 4);
+  createTargetBoxes(target_size, h_margin, v_margin, vegetables, 6);
 }
 
 // Is invoked when the canvas is resized (e.g., when we go fullscreen)
@@ -284,8 +348,8 @@ function windowResized()
 
     // Make your decisions in 'cm', so that targets have the same size for all participants
     // Below we find out out white space we can have between 2 cm targets
-    let screen_width   = display.width * 2.54;             // screen width
-    let screen_height  = display.height * 2.54;            // screen height
+    screen_width       = display.width * 2.54;             // screen width
+    screen_height      = display.height * 2.54;            // screen height
     let target_size    = 2;                                // sets the target size (will be converted to cm when passed to createTargets)
     let horizontal_gap = screen_width - target_size * GRID_COLUMNS;// empty space in cm across the x-axis (based on 10 targets per row)
     let vertical_gap   = screen_height - target_size * GRID_ROWS;  // empty space in cm across the y-axis (based on 8 targets per column)

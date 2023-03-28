@@ -70,8 +70,9 @@ class Target
     // Draw first letter on top
     textFont("Arial", 20);
     textAlign(CENTER, TOP);
-    text(this.label[0], this.x, this.y - (this.height/2)+7);
     fill(this.text);
+    textStyle(BOLD);
+    text(this.label[0], this.x, this.y - (this.height/2)+7);
     textStyle(NORMAL);
     textAlign(CENTER);
   }
