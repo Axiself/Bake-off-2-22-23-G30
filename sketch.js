@@ -195,10 +195,9 @@ function mousePressed()
     for (var i = 0; i < SUBTITLE_AMOUNT; i++)
     {
       // Check if the user clicked over one of the targets
-      if (targets[i].clicked(mouseX, mouseY)) 
+      if (targets[i].hovered(mouseX, mouseY)) 
       {
-        targets[i].color = color(191, 191, 191);
-        targets[i].text = color(0,0,0);
+        targets[i].clickedColor();
         // Checks if it was the correct target
         if (targets[i].id === trials[current_trial]) {
             hits++;
@@ -284,11 +283,12 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
   // for the number of targets minus one
   h_margin = horizontal_gap / (GRID_COLUMNS -1);
   v_margin = vertical_gap / (GRID_ROWS - 1);
+  let t_height = (target_size * 13) / 20
   
-  groupTitles.push(new Group("Fruits", color(250,29,47), 10 + target_size/2));
-  groupTitles.push(new Group("Juices", color(248,117,49), 10 + target_size/2 + (v_margin + target_size)*3));
-  groupTitles.push(new Group("Milks & Yoghurts & Creams", color(238,233,233), 10 + target_size/2 + (v_margin + target_size)*4));
-  groupTitles.push(new Group("Vegetables", color(156,203,25), 10 + target_size/2 + (v_margin + target_size)*6));
+  groupTitles.push(new Group("Fruits", color(250,29,47), (v_margin + target_size) * 0 + t_height/2 + 20));
+  groupTitles.push(new Group("Juices", color(248,117,49), (v_margin + target_size) * 3 + t_height/2 + 20));
+  groupTitles.push(new Group("Milks & Yoghurts & Creams", color(238,233,233), (v_margin + target_size) * 4 + t_height/2 + 20));
+  groupTitles.push(new Group("Vegetables", color(156,203,25), (v_margin + target_size) * 6 + t_height/2 + 20));
 
   let tlabel;
   let tid;
@@ -327,12 +327,18 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
     return 1;
   })
   
-  finalLegendas = fruit.concat(juice, dairies, vegetables);
-  
   createTargetBoxes(target_size, h_margin, v_margin, fruit, 0);
   createTargetBoxes(target_size, h_margin, v_margin, juice, 3);
   createTargetBoxes(target_size, h_margin, v_margin, dairies, 4);
   createTargetBoxes(target_size, h_margin, v_margin, vegetables, 6);
+}
+
+function mouseMoved() {
+  if(draw_targets && attempt < 2) {
+    for(i = 0; i < targets.length; i++) {
+      targets[i].hovered(mouseX, mouseY)
+    }
+  }
 }
 
 // Is invoked when the canvas is resized (e.g., when we go fullscreen)
