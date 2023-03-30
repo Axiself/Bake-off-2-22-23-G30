@@ -60,11 +60,11 @@ class Target
   {
     // Draw outline if hovered
     if(this.isHovered) {
-      fill(color(255, 255, 255));   
+      fill(color(110, 110, 190));   
       rect(this.x - this.width/2, this.y - this.height/2,
          this.width, this.height,10);
-      this.width -= 3;
-      this.height -= 3;
+      this.width -= 7;
+      this.height -= 7;
     }
     
     // Draw target
@@ -74,8 +74,8 @@ class Target
     
     // Reset to correct dimensions
     if(this.isHovered) {
-      this.width += 3;
-      this.height += 3;
+      this.width += 7;
+      this.height += 7;
     }
     
     // Draw label
@@ -89,7 +89,7 @@ class Target
     textAlign(CENTER, TOP);
     fill(this.text);
     textStyle(BOLD);
-    text(this.label[0], this.x, this.y - (this.height/2)+7);
+    text(this.label[0] + this.label[1], this.x, this.y - (this.height/2)+7);
     textStyle(NORMAL);
     textAlign(CENTER);
   }

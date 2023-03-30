@@ -6,7 +6,7 @@
 // p5.js reference: https://p5js.org/reference/
 
 // Database (CHANGE THESE!)
-const GROUP_NUMBER        = 0;      // Add your group number here as an integer (e.g., 2, 3)
+const GROUP_NUMBER        = 30;      // Add your group number here as an integer (e.g., 2, 3)
 const RECORD_TO_FIREBASE  = true;  // Set to 'true' to record user results to Firebase
 
 // Pixel density and setup variables (DO NOT CHANGE!)
@@ -84,13 +84,26 @@ function draw()
     background(color(0,0,0));
     
     // Text help
-    fill(255);
+    fill(255,255,255);
     textFont("Arial", 20);
     text("The targets are ordered by\ngroups, then alfabetically!", 425, 50);
     
     textFont("Arial", 16);
-    text("Groups:  - Fruits\n               - Juices\n               - Dairy products\n               - Vegetables", 425, 100);
+    text("Groups:", 425, 100);
     
+    fill(250,29,47);
+    text("               - Fruits", 425, 100);
+    
+    fill(248,117,49);
+    text("\n               - Juices", 425, 100);
+    
+    fill(238,233,233);
+    text("\n\n               - Dairy products", 425, 100);
+    
+    fill(143, 186, 22);
+    text("\n\n\n               - Vegetables", 425, 100);
+    
+    fill(255,255,255);
     textFont("Arial", 12);
     text("PS: Tomato is a vegetable", 425, 195);
     
@@ -299,15 +312,10 @@ function createTargets(target_size, horizontal_gap, vertical_gap)
     ttype = legendas.getString(i, 2);
     subtitle = new Subtitle(tlabel, tid, ttype);
 
-    if(i<=27){ 
-      fruit.push(subtitle);
-    } else if (i>=28 && i<=36){
-      juice.push(subtitle);
-    } else if (i>=37 && i<=57){
-      dairies.push(subtitle);
-    } else {
-      vegetables.push(subtitle);
-    }
+    if(i<=27) fruit.push(subtitle);
+    else if (i>=28 && i<=36) juice.push(subtitle);
+    else if (i>=37 && i<=57) dairies.push(subtitle);
+    else vegetables.push(subtitle);
   }
 
   fruit.sort((a,b)=>{
